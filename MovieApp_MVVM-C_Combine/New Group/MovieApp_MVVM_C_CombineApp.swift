@@ -9,9 +9,10 @@ import SwiftUI
 
 @main
 struct MovieApp_MVVM_C_CombineApp: App {
+
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            CoordinatorView()
         }
     }
 }
