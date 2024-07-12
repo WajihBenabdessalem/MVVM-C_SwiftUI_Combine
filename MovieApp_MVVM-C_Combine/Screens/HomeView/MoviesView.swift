@@ -11,115 +11,101 @@ struct MoviesView: View {
     @StateObject var viewModel = MoviesViewModel()
     @EnvironmentObject private var coordinator: Coordinator
     @Environment(\.imageCache) private var cache: ImageCache
-
+    
     var body: some View {
         NavigationStack(path: $coordinator.path) {
             VStack {
                 SearchBar(text: $viewModel.searchQuery)
                 PickerView(selected: $viewModel.selectedCategory)
-                ResultView(state: viewModel.viewState, retry: {
-                    viewModel.fetchMovies(viewModel.selectedCategory ?? .popular)
+                ResultView(state: viewModel.state, request: {
+                  viewModel.fetchMovies(viewModel.selectedCategory)
                 }) { movies in
-                    MovieListView(viewModel, cache: cache) { movieId in
-                        coordinator.push(.detail(movieId))
-                    }
+                  movieListView(viewModel.filteredMovies)
                 }
-                .onAppear {
-                    viewModel.fetchMovies(viewModel.selectedCategory ?? .popular)
-                }
+                .overlay { noSearchResultView() }
                 .navigationDestination(for: Page.self) { page in
-                    coordinator.build(page:page)
+                  coordinator.build(page:page)
                 }
-                .navigationTitle(viewModel.selectedCategory?.title ?? "Popular")
+                .navigationTitle(viewModel.selectedCategory.title)
                 .navigationBarTitleDisplayMode(.large)
             }
             .preferredColorScheme(.dark)
         }
     }
+    
 }
 
 extension MoviesView {
-    struct MovieRowView: View {
-        let movie: Movie
-        let cache: ImageCache
-        
-        init(movie: Movie, cache: ImageCache) {
-            self.movie = movie
-            self.cache = cache
-        }
-        
-        var body: some View {
-            HStack(spacing: 9) {
-                AsyncImageView(
-                    url: movie.poster!,
-                    cache: cache,
-                    placeholder: {
-                        Spinner(isAnimating: true, style: .medium)
-                    },
-                    image: {
-                        Image(uiImage: $0)
-                        .resizable()
-                        .renderingMode(.original)
+    @ViewBuilder
+    func movieListView(_ movies: [Movie]) -> some View {
+        ScrollViewReader { proxy in
+            ScrollView(showsIndicators: false) {
+                LazyVStack {
+                    ForEach(movies, id: \.id) { movie in
+                        movieRowView(movie: movie, cache: cache)
+                            .onTapGesture {
+                                coordinator.push(.detail(movie.id))
+                            }
                     }
-                )
-                .frame(width: 100)
-                .clipShape(RoundedRectangle(cornerRadius: 25))
-                VStack(alignment: .leading, spacing: 8) {
-                    Group {
-                        Text(movie.title)
-                            .font(.custom(AppFont.InterBold, size: 20))
-                            .foregroundStyle(Color.titleTintColor)
-                        HStack(spacing: 7) {
-                            PopularityBadge(score: Int(movie.vote_average * 10))
-                            Text(movie.release_date.toDate(),
-                                 format:.dateTime.day().month().year())
-                            .font(.headline)
-                            .foregroundColor(.primary)
-                        }
-                        Text(movie.overview)
-                            .font(.headline)
-                            .lineLimit(3)
+                }.padding(.horizontal)
+            }.onChange(of: viewModel.selectedCategory) { old, new in
+                withAnimation {
+                    if let firstMovieId = movies.first?.id {
+                        proxy.scrollTo(firstMovieId, anchor: .top)
                     }
-                    .foregroundStyle(.gray)
-                    Spacer()
                 }
-                Spacer()
-                Image(systemName: "chevron.right")
-                    .foregroundStyle(.white)
             }
-            .frame(height: 151)
         }
     }
     
-    struct MovieListView: View {
-        @ObservedObject var viewModel: MoviesViewModel
-        let cache: ImageCache
-        let action: (Int) -> Void
-
-        init(_ viewModel: MoviesViewModel, cache: ImageCache, action: @escaping (Int) -> Void) {
-            self.viewModel = viewModel
-            self.cache = cache
-            self.action = action
-        }
-        
-        var body: some View {
-            ScrollViewReader { proxy in
-                ScrollView(showsIndicators: false) {
-                    LazyVStack {
-                        ForEach(viewModel.movies, id: \.id) { movie in
-                            MovieRowView(movie: movie, cache: cache)
-                                .onTapGesture { action(movie.id) }
-                        }
-                    }.padding(.horizontal)
+    @ViewBuilder
+    func movieRowView(movie: Movie, cache: ImageCache) -> some View {
+        HStack(spacing: 9) {
+            AsyncImageView(
+                url: movie.poster!,
+                cache: cache,
+                placeholder: {
+                    RoundedRectangle(cornerRadius: 25)
+                        .fill(.gray.opacity(0.5))
+                },
+                image: {
+                    Image(uiImage: $0)
+                        .resizable()
+                        .renderingMode(.original)
                 }
-                .onChange(of: viewModel.selectedCategory) { _,_ in
-                    withAnimation {
-                        if let firstMovieId = viewModel.movies.first?.id {
-                            proxy.scrollTo(firstMovieId, anchor: .top)
-                        }
+            )
+            .frame(width: 100)
+            .clipShape(RoundedRectangle(cornerRadius: 25))
+            VStack(alignment: .leading, spacing: 8) {
+                Group {
+                    Text(movie.title)
+                        .font(.custom(AppFont.InterBold, size: 20))
+                        .foregroundStyle(Color.titleTintColor)
+                    HStack(spacing: 7) {
+                        PopularityBadge(score: Int(movie.vote_average * 10))
+                        Text(movie.release_date.toDate(),
+                             format:.dateTime.day().month().year())
+                        .font(.headline)
+                        .foregroundColor(.primary)
                     }
+                    Text(movie.overview)
+                        .font(.headline)
+                        .lineLimit(3)
                 }
+                .foregroundStyle(.gray)
+                Spacer()
             }
+            Spacer()
+            Image(systemName: "chevron.right")
+                .foregroundStyle(.white)
+        }
+        .frame(height: 151)
+    }
+    
+    @ViewBuilder
+    func noSearchResultView() -> some View {
+        if viewModel.isNoSearchResult {
+          ContentUnavailableView.search(text: viewModel.searchQuery)
         }
     }
 }

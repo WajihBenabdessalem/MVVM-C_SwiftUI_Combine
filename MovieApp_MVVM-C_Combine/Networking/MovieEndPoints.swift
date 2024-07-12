@@ -24,3 +24,21 @@ enum MovieEndPoints: EndPoint {
         }
     }
 }
+
+// MARK: - Movies Types
+
+enum MovieType: String, CaseIterable {
+    case popular
+    case upcoming
+    case top_rated
+    case now_playing
+    
+    var title: String {
+        switch self {
+        case .popular: "Popular"
+        case .upcoming: "Upcoming"
+        case .top_rated: "Top rated"
+        case .now_playing: "Now playing"
+        }
+    }
+}

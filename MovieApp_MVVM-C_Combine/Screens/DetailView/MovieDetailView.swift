@@ -14,16 +14,15 @@ struct MovieDetailView: View {
     
     var body: some View {
         GeometryReader { proxy in
-            ResultView(state: viewModel.viewState, retry: {
+            ResultView(state: viewModel.viewState, request: {
                 viewModel.fetchMovieDetail()
             }) { movieDetail in
                 VStack(alignment: .leading, spacing: 0) {
-                    PosterView(poster: movieDetail.poster!,
+                    posterView(poster: movieDetail.poster!,
                                proxy: proxy, cache: cache)
-                    DetailView(movie: movieDetail)
+                    detailView(movie: movieDetail)
                 }
             }
-            .onAppear { viewModel.fetchMovieDetail() }
             .navigationBarBackButtonHidden(true)
             .navigationBarItems(leading: Button(action: {
                 self.coordinator.pop()
@@ -38,63 +37,47 @@ struct MovieDetailView: View {
         .ignoresSafeArea(edges: .all)
         .preferredColorScheme(.dark)
     }
-}
-
-extension MovieDetailView {
-    struct PosterView: View {
-        let poster: URL
-        let proxy: GeometryProxy
-        let cache: ImageCache
-        
-        init(poster: URL, proxy: GeometryProxy, cache: ImageCache) {
-            self.poster = poster
-            self.proxy = proxy
-            self.cache = cache
-        }
-        
-        var body: some View {
-            AsyncImageView(
-                url: poster,
-                cache: cache,
-                placeholder: {
-                    Spinner(isAnimating: true, style: .medium)
-                },image: {
-                    Image(uiImage: $0)
-                        .resizable()
-                        .renderingMode(.original)
-                }
-            )
-            .frame(height: proxy.size.height / 2)
-            .overlay {
-                LinearGradient(gradient: Gradient(colors:  [.black, .clear]),
-                               startPoint: .bottom,
-                               endPoint: .center)
-                .frame(height: proxy.size.height / 2)
+    
+    @ViewBuilder
+    func posterView(poster: URL, proxy: GeometryProxy, cache: ImageCache) -> some View {
+        AsyncImageView(
+            url: poster,
+            cache: cache,
+            placeholder: {
+                Spinner(isAnimating: true, style: .medium)
+            },image: {
+                Image(uiImage: $0)
+                    .resizable()
+                    .renderingMode(.original)
             }
+        )
+        .frame(height: proxy.size.height / 2)
+        .overlay {
+            LinearGradient(gradient: Gradient(colors:  [.black, .clear]),
+                           startPoint: .bottom,
+                           endPoint: .center)
+            .frame(height: proxy.size.height / 2)
         }
     }
     
-    struct DetailView: View {
-        let movie: MovieDetail
-        
-        var body: some View {
-            ScrollView(.vertical, showsIndicators: false) {
-                VStack(alignment: .leading, spacing: 10) {
-                    Text(movie.title)
-                        .font(.largeTitle)
-                        .bold()
-                    HStack(spacing: 20) {
-                        VStack(alignment: .leading) {
-                            Text("Release Date")
-                                .fontWeight(.bold)
-                            Text(movie.release_date ?? "N/A")
-                                .font(.headline)
-                        }
+    @ViewBuilder
+    func detailView(movie: MovieDetail) -> some View {
+        ScrollView(.vertical, showsIndicators: false) {
+            VStack(alignment: .leading, spacing: 10) {
+                Text(movie.title)
+                    .font(.largeTitle)
+                    .bold()
+                HStack(spacing: 20) {
+                    VStack(alignment: .leading) {
+                        Text("Release Date")
+                            .fontWeight(.bold)
+                        Text(movie.release_date ?? "N/A")
+                            .font(.headline)
                     }
-                    Text(movie.overview ?? "N/A")
-                        .font(.custom(AppFont.InterRegular, size: 17, relativeTo: .headline))
-                }.padding()
-            }
+                }
+                Text(movie.overview ?? "N/A")
+                    .font(.custom(AppFont.InterRegular, size: 17, relativeTo: .headline))
+            }.padding()
         }
     }
 }

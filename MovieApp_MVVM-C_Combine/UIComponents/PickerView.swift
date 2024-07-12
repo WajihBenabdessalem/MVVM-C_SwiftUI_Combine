@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct PickerView: View {
-    @Binding var selected: MovieType?
+    @Binding var selected: MovieType
     @State var frames = Array<CGRect>(repeating: .zero, count: 4)
     
     var body: some View {
@@ -52,10 +52,10 @@ extension PickerView {
     func BackgroundView() -> some View {
         Capsule()
             .fill(Color.titleTintColor)
-            .frame(width: self.frames[indexOf(tab: selected ?? .popular)].width,
-                   height: self.frames[indexOf(tab: selected ?? .popular)].height,
+            .frame(width: self.frames[indexOf(tab: selected)].width,
+                   height: self.frames[indexOf(tab: selected)].height,
                    alignment: .topLeading)
-            .offset(x: self.frames[indexOf(tab: selected ?? .popular)].minX - self.frames[0].minX)
+            .offset(x: self.frames[indexOf(tab: selected)].minX - self.frames[0].minX)
     }
     
     func setFrame(index: Int, frame: CGRect) {
@@ -65,8 +65,4 @@ extension PickerView {
     func indexOf(tab: MovieType) -> Int {
         return MovieType.allCases.firstIndex(of: tab)!
     }
-}
-
-#Preview {
-    PickerViewPreview()
 }

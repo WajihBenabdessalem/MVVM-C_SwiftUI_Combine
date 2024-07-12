@@ -26,7 +26,7 @@ enum APIEnvironment {
     var imageBaseURL: String {
         switch self {
         case .development:
-            return "https://image.tmdb.org/t/p/original/"
+            return "https://image.tmdb.org/t/p/w200/"
         case .staging:
             return "staging.imageBaseURL.com"
         case .production:

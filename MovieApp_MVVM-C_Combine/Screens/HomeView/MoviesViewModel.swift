@@ -9,20 +9,25 @@ import Foundation
 import Combine
 
 final class MoviesViewModel: ObservableObject {
-    @Published var viewState: ViewState<[Movie]> = .idle
-    @Published var selectedCategory: MovieType?
+    @Published var state: ViewState<[Movie]> = .idle
+    @Published private(set) var filteredMovies: [Movie] = []
     @Published var searchQuery: String = ""
-    @Published private(set) var movies: [Movie] = []
+    @Published var isNoSearchResult: Bool = false
+    @Published var selectedCategory: MovieType = .popular {
+        didSet {
+            fetchMovies(selectedCategory)
+        }
+    }
     private var cancellables = Set<AnyCancellable>()
     private let apiClient: ApiClient
     
     init(apiClient: ApiClient = .shared) {
         self.apiClient = apiClient
-        self.initSubscribers()
+        initSubscribers()
     }
     
     func fetchMovies(_ type: MovieType) {
-        viewState = .loading
+        state = .loading
         self.apiClient.request(MovieEndPoints.movies(type))
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { [weak self] completion in
@@ -30,52 +35,27 @@ final class MoviesViewModel: ObservableObject {
                 case .finished:
                     print("Successfully received movies")
                 case let .failure(error):
-                    self?.viewState = .error(error)
+                    self?.state = .error(error)
                 }
             }, receiveValue: { [weak self] (response: MoviesResponse) in
-                self?.viewState = .loaded(response.results)
-                self?.movies = response.results
+                self?.state = .loaded(response.results)
             })
             .store(in: &self.cancellables)
     }
-    
-    func initSubscribers()  {
-        $selectedCategory.sink { [weak self] newCategorie in
-            if let catg = newCategorie {
-                self?.fetchMovies(catg)
-            }
-        }
-        .store(in: &self.cancellables)
-        $searchQuery.sink { [weak self] newQuery in
-            if let movies = self?.movies {
-                self?.viewState = newQuery.isEmpty ? .loaded(movies) :
-                    .loaded(movies.filter {
-                        $0.title.lowercased().contains(newQuery.lowercased())
-                    })
-            }
-        }
-        .store(in: &self.cancellables)
-    }
-    
-    deinit {
-        cancellables.removeAll()
-    }
 }
 
-// MARK: - Movies Types
-
-enum MovieType: String, CaseIterable {
-    case popular
-    case upcoming
-    case top_rated
-    case now_playing
-    
-    var title: String {
-        switch self {
-        case .popular: "Popular"
-        case .upcoming: "Upcoming"
-        case .top_rated: "Top rated"
-        case .now_playing: "Now playing"
-        }
+extension MoviesViewModel {
+    func initSubscribers() {
+        $searchQuery
+            .removeDuplicates()
+            .combineLatest($state)
+            .map { [weak self] (query, state) -> [Movie] in
+                guard case let .loaded(movies) = state else { return [] }
+                let searchResult = movies.filter { $0.title.lowercased().contains(query.lowercased()) }
+                self?.isNoSearchResult = searchResult.isEmpty && !query.isEmpty
+                return query.isEmpty ? movies : searchResult
+            }
+            .assign(to: \.filteredMovies, on: self)
+            .store(in: &cancellables)
     }
 }

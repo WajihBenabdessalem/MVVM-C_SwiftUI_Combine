@@ -8,11 +8,11 @@
 import SwiftUI
 
 struct ContentUnavailable: View {
-    let message: String?
+    let error: ApiError?
     let retry: (() -> Void)?
     
-    init(_ message: String?, retry: (() -> Void)?) {
-        self.message = message
+    init(_ error: ApiError?, retry: (() -> Void)?) {
+        self.error = error
         self.retry = retry
     }
     
@@ -21,7 +21,7 @@ struct ContentUnavailable: View {
             Label("Oops!", systemImage: "exclamationmark.triangle")
                 .tint(.white)
         } description: {
-            Text("Sorry, something went wrong while fetching data.\n" + "\(message ?? "")")
+            Text("Sorry, something went wrong while fetching data.\n" + String(describing: error?.localizedDescription))
                 .tint(.white)
                 .multilineTextAlignment(.center)
         } actions: {

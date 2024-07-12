@@ -18,29 +18,27 @@ struct ResultView<T, Content: View>: View {
     @EnvironmentObject private var networkMonitor: NetworkMonitor
     @State private var showNetworkAlert = false
     var state: ViewState<T>
-    var retry: (() -> Void)?
+    var request: (() -> Void)?
     var content: (T) -> Content
     
     var body: some View {
         Group {
             switch state {
             case .idle:
-                Text("idle state")
+                Color.clear
             case .loading:
                 ProgressView { Text("Loading...") }
             case let .loaded(data):
                 content(data)
             case let .error(error):
-                ContentUnavailable(error.localizedDescription,
-                                   retry: retry)
+                ContentUnavailable(error, retry: request)
             }
         }
+        .onAppear { if let request = request { request() } }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .onChange(of: networkMonitor.isConnected) { _, isConnected in
-            showNetworkAlert = isConnected == false
+        .onChange(of: networkMonitor.isConnected) { old, new in
+            showNetworkAlert = new == false
         }
-        .popover(isPresented: $showNetworkAlert) {
-            Text("Network connection seems to be offline.")
-        }
+        .popover(isPresented: $showNetworkAlert) { NoInternetView() }
     }
 }

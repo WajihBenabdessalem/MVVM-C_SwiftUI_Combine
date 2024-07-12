@@ -15,7 +15,7 @@ class ImageLoader: ObservableObject {
     private var cache: ImageCache?
     private var cancellable: AnyCancellable?
     private static let imageProcessingQueue = DispatchQueue(label: "image-processing", qos: .background)
-    private let throttleInterval: TimeInterval = 0.3
+    private let throttleInterval: TimeInterval = 0.2
     private var throttleWorkItem: DispatchWorkItem?
     
     init(url: URL, cache: ImageCache? = nil) {
@@ -42,7 +42,7 @@ class ImageLoader: ObservableObject {
             self?.startLoad()
         }
         throttleWorkItem = workItem
-        DispatchQueue.main.asyncAfter(deadline: .now() + throttleInterval, execute: workItem)
+        DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + throttleInterval, execute: workItem)
     }
     
     func startLoad() {
