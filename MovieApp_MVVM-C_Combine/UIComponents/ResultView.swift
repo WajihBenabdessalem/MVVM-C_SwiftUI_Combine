@@ -17,9 +17,15 @@ enum ViewState<T> {
 struct ResultView<T, Content: View>: View {
     @EnvironmentObject private var networkMonitor: NetworkMonitor
     @State private var showNetworkAlert = false
-    var state: ViewState<T>
-    var request: (() -> Void)?
-    var content: (T) -> Content
+    let state: ViewState<T>
+    let request: (() -> Void)?
+    let content: (T) -> Content
+    
+    init(state: ViewState<T>, request: (() -> Void)? = nil, content: @escaping (T) -> Content) {
+        self.state = state
+        self.request = request
+        self.content = content
+    }
     
     var body: some View {
         Group {

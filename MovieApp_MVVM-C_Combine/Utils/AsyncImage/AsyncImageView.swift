@@ -31,8 +31,8 @@ struct AsyncImageView<Placeholder: View>: View {
     
     private var content: some View {
         Group {
-            if loader.image != nil {
-                image(loader.image!)
+            if let img = loader.image {
+               image(img)
             } else {
                 placeholder
             }

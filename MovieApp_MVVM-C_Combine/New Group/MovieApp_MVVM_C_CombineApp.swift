@@ -9,10 +9,15 @@ import SwiftUI
 
 @main
 struct MovieApp_MVVM_C_CombineApp: App {
-
+    @StateObject private var coordinator = Coordinator()
+    @StateObject var networkMonitor = NetworkMonitor()
+    
     var body: some Scene {
         WindowGroup {
-            CoordinatorView()
+            //CoordinatorView()
+            MoviesView()
+                .environmentObject(coordinator)
+                .environmentObject(networkMonitor)
         }
     }
 }

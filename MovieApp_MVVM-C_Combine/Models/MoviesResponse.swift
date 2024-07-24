@@ -16,7 +16,7 @@ struct MoviesResponse<T: Codable>: Codable {
     let results: [T]
 }
 
-struct Movie: Codable {
+struct Movie: Codable, Identifiable {
     let id: Int
     let title: String
     let poster_path: String?
@@ -28,7 +28,7 @@ struct Movie: Codable {
     
     var poster: URL? {
         poster_path.map {
-            URL(string: ApiConfig.imageBaseURL)!
+            URL(string: MovieEndPoints.movies(.popular).environment.imageBaseURL)!
                 .appendingPathComponent($0)
         }
     }
@@ -47,7 +47,7 @@ struct MovieDetail: Codable {
     
     var poster: URL? {
         poster_path.map {
-            URL(string: ApiConfig.imageBaseURL)!
+            URL(string: MovieEndPoints.movieDetails(Int()).environment.imageBaseURL)!
                 .appendingPathComponent($0)
         }
     }

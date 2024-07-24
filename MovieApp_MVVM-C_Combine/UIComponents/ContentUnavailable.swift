@@ -17,11 +17,12 @@ struct ContentUnavailable: View {
     }
     
     var body: some View {
-        ContentUnavailableView {
+        let errorDescription = error?.errorDescription ?? ""
+        return ContentUnavailableView {
             Label("Oops!", systemImage: "exclamationmark.triangle")
                 .tint(.white)
         } description: {
-            Text("Sorry, something went wrong while fetching data.\n" + String(describing: error?.localizedDescription))
+            Text("Sorry, something went wrong while fetching data.\n" + errorDescription)
                 .tint(.white)
                 .multilineTextAlignment(.center)
         } actions: {

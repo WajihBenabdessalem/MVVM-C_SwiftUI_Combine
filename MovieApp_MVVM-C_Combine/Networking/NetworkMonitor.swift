@@ -10,7 +10,7 @@ import Network
 
 class NetworkMonitor: ObservableObject {
     private let networkMonitor = NWPathMonitor()
-    private let workerQueue = DispatchQueue(label: "Monitor")
+    private let workerQueue = DispatchQueue(label: "Monitor", qos: .background)
     
     @Published var isConnected = false
 

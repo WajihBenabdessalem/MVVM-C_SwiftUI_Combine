@@ -10,7 +10,7 @@ import Combine
 
 final class MoviesViewModel: ObservableObject {
     @Published var state: ViewState<[Movie]> = .idle
-    @Published private(set) var filteredMovies: [Movie] = []
+    @Published private(set) var movies: [Movie] = []
     @Published var searchQuery: String = ""
     @Published var isNoSearchResult: Bool = false
     @Published var selectedCategory: MovieType = .popular {
@@ -38,24 +38,28 @@ final class MoviesViewModel: ObservableObject {
                     self?.state = .error(error)
                 }
             }, receiveValue: { [weak self] (response: MoviesResponse) in
-                self?.state = .loaded(response.results)
+                guard let self = self else { return }
+                self.state = .loaded(response.results)
+                self.movies = response.results
             })
             .store(in: &self.cancellables)
     }
 }
 
-extension MoviesViewModel {
+private extension MoviesViewModel {
     func initSubscribers() {
         $searchQuery
+            .dropFirst()
             .removeDuplicates()
             .combineLatest($state)
-            .map { [weak self] (query, state) -> [Movie] in
-                guard case let .loaded(movies) = state else { return [] }
-                let searchResult = movies.filter { $0.title.lowercased().contains(query.lowercased()) }
-                self?.isNoSearchResult = searchResult.isEmpty && !query.isEmpty
-                return query.isEmpty ? movies : searchResult
+            .map { [weak self] (query, state) -> ViewState in
+                guard let self = self, case .loaded(_) = state else { return .idle }
+                let searchResult = self.movies.filter { $0.title.lowercased().contains(query.lowercased()) }
+                self.isNoSearchResult = searchResult.isEmpty && !query.isEmpty
+                return query.isEmpty ? .loaded(self.movies) : .loaded(searchResult)
             }
-            .assign(to: \.filteredMovies, on: self)
+            .receive(on: DispatchQueue.main)
+            .assign(to: \.state, on: self)
             .store(in: &cancellables)
     }
 }

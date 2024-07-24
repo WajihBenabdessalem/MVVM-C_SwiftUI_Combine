@@ -9,7 +9,7 @@ import SwiftUI
 
 struct SearchBar: View {
     @Binding var text: String
-    @FocusState private var isSearching: Bool
+    @FocusState var isSearching: Bool
     
     var body: some View {
         HStack {
@@ -37,7 +37,6 @@ struct SearchBar: View {
             if !text.isEmpty {
                 Button { 
                     text = ""
-                    isSearching = false
                 } label: {
                     Text("Cancel").bold().tint(.gray)
                 }

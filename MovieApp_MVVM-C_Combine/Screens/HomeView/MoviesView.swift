@@ -8,10 +8,10 @@
 import SwiftUI
 
 struct MoviesView: View {
-    @StateObject var viewModel = MoviesViewModel()
+    @StateObject private var viewModel = MoviesViewModel()
     @EnvironmentObject private var coordinator: Coordinator
     @Environment(\.imageCache) private var cache: ImageCache
-    
+
     var body: some View {
         NavigationStack(path: $coordinator.path) {
             VStack {
@@ -20,41 +20,34 @@ struct MoviesView: View {
                 ResultView(state: viewModel.state, request: {
                   viewModel.fetchMovies(viewModel.selectedCategory)
                 }) { movies in
-                  movieListView(viewModel.filteredMovies)
+                    movieListView(movies)
                 }
                 .overlay { noSearchResultView() }
-                .navigationDestination(for: Page.self) { page in
-                  coordinator.build(page:page)
-                }
-                .navigationTitle(viewModel.selectedCategory.title)
-                .navigationBarTitleDisplayMode(.large)
             }
-            .preferredColorScheme(.dark)
+            .navigationTitle(viewModel.selectedCategory.title)
+            .navigationBarTitleDisplayMode(.large)
+            .navigationDestination(for: Page.self) { page in
+                coordinator.build(page:page)
+            }
         }
+        .preferredColorScheme(.dark)
     }
-    
 }
 
 extension MoviesView {
     @ViewBuilder
     func movieListView(_ movies: [Movie]) -> some View {
-        ScrollViewReader { proxy in
-            ScrollView(showsIndicators: false) {
-                LazyVStack {
-                    ForEach(movies, id: \.id) { movie in
-                        movieRowView(movie: movie, cache: cache)
-                            .onTapGesture {
-                                coordinator.push(.detail(movie.id))
-                            }
-                    }
-                }.padding(.horizontal)
-            }.onChange(of: viewModel.selectedCategory) { old, new in
-                withAnimation {
-                    if let firstMovieId = movies.first?.id {
-                        proxy.scrollTo(firstMovieId, anchor: .top)
-                    }
+        ScrollView(showsIndicators: false) {
+            LazyVStack {
+                ForEach(movies, id: \.id) { movie in
+                    movieRowView(movie: movie, cache: cache)
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            coordinator.push(.detail(movie.id))
+                        }
                 }
             }
+            .padding(.horizontal)
         }
     }
     
@@ -66,46 +59,38 @@ extension MoviesView {
                 cache: cache,
                 placeholder: {
                     RoundedRectangle(cornerRadius: 25)
-                        .fill(.gray.opacity(0.5))
-                },
-                image: {
-                    Image(uiImage: $0)
-                        .resizable()
-                        .renderingMode(.original)
-                }
+                        .fill(Color.gray.opacity(0.5))
+                },image: { Image(uiImage: $0).resizable() }
             )
             .frame(width: 100)
             .clipShape(RoundedRectangle(cornerRadius: 25))
             VStack(alignment: .leading, spacing: 8) {
-                Group {
-                    Text(movie.title)
-                        .font(.custom(AppFont.InterBold, size: 20))
-                        .foregroundStyle(Color.titleTintColor)
-                    HStack(spacing: 7) {
-                        PopularityBadge(score: Int(movie.vote_average * 10))
-                        Text(movie.release_date.toDate(),
-                             format:.dateTime.day().month().year())
+                Text(movie.title)
+                    .font(.custom(AppFont.InterBold, size: 20))
+                    .foregroundColor(Color.titleTintColor)
+                HStack(spacing: 7) {
+                    PopularityBadge(score: Int(movie.vote_average * 10))
+                    Text(movie.release_date.toDate(), format: .dateTime.day().month().year())
                         .font(.headline)
                         .foregroundColor(.primary)
-                    }
-                    Text(movie.overview)
-                        .font(.headline)
-                        .lineLimit(3)
                 }
-                .foregroundStyle(.gray)
+                Text(movie.overview)
+                    .font(.headline)
+                    .lineLimit(3)
+                    .foregroundColor(.gray)
                 Spacer()
             }
             Spacer()
             Image(systemName: "chevron.right")
-                .foregroundStyle(.white)
+                .foregroundColor(.white)
         }
         .frame(height: 151)
     }
-    
+
     @ViewBuilder
     func noSearchResultView() -> some View {
         if viewModel.isNoSearchResult {
-          ContentUnavailableView.search(text: viewModel.searchQuery)
+            ContentUnavailableView.search(text: viewModel.searchQuery)
         }
     }
 }
