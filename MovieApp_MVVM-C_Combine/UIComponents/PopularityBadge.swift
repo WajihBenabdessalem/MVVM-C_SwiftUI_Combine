@@ -24,10 +24,9 @@ struct PopularityBadge : View {
                 .foregroundColor(.gray.opacity(0.3))
                 .frame(width: 40)
                 .overlay(overlay)
-                .shadow(color: scoreColor, radius: 4)
             Text("\(score)%")
                 .font(Font.system(size: 10))
-                .fontWeight(.bold)
+                .bold()
                 .foregroundColor(textColor)
         }
         .frame(width: 40, height: 40)
@@ -35,7 +34,9 @@ struct PopularityBadge : View {
     
     var scoreColor: Color {
         get {
-            if score < 40 {
+            if score == 0 {
+                return .gray
+            } else if score < 40 {
                 return .red
             } else if score < 60 {
                 return .orange

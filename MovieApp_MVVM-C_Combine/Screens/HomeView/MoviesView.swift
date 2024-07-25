@@ -19,13 +19,13 @@ struct MoviesView: View {
                 PickerView(selected: $viewModel.selectedCategory)
                 ResultView(state: viewModel.state, request: {
                     viewModel.fetchMovies(viewModel.selectedCategory)
-                }, content: { movies in
+                }, content: { movies in 
                     movieListView(movies)
                 })
                 .overlay { noSearchResultView() }
             }
-            .navigationTitle(viewModel.selectedCategory.title)
             .navigationBarTitleDisplayMode(.large)
+            .navigationTitle(viewModel.selectedCategory.title)
             .navigationDestination(for: Page.self) { page in
                 coordinator.build(page:page)
             }

@@ -14,7 +14,7 @@ struct MovieDetailView: View {
     
     var body: some View {
         GeometryReader { proxy in
-            ResultView(state: viewModel.viewState, request: {
+            ResultView(state: viewModel.state, request: {
                 viewModel.fetchMovieDetail()
             }) { movieDetail in
                 VStack(alignment: .leading, spacing: 0) {
@@ -23,21 +23,23 @@ struct MovieDetailView: View {
                     detailView(movie: movieDetail)
                 }
             }
-            .navigationBarBackButtonHidden(true)
-            .navigationBarItems(leading: Button(action: {
-                self.coordinator.pop()
-            }) {
-                Image(systemName: "chevron.left")
-                    .foregroundColor(.white)
-                    .frame(width: 40, height: 40)
-                    .background(Color.gray)
-                    .clipShape(Circle())
-            })
         }
+        .navigationBarBackButtonHidden(true)
+        .navigationBarItems(leading: Button(action: {
+            self.coordinator.pop()
+        }) {
+            Image(systemName: "chevron.left")
+                .foregroundColor(.white)
+                .frame(width: 40, height: 40)
+                .background(Color.gray)
+                .clipShape(Circle())
+        })
         .ignoresSafeArea(edges: .all)
         .preferredColorScheme(.dark)
     }
-    
+}
+
+extension MovieDetailView {
     @ViewBuilder
     func posterView(poster: URL, proxy: GeometryProxy, cache: ImageCache) -> some View {
         AsyncImageView(

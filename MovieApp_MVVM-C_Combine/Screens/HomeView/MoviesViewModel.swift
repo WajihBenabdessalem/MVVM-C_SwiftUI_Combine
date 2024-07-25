@@ -76,7 +76,7 @@ extension MoviesViewModel {
                          overview: UUID().uuidString,
                          release_date: UUID().uuidString,
                          popularity: 50.5,
-                         vote_average: 50.5,
+                         vote_average: 0,
                          vote_count: 20)
         }
     }

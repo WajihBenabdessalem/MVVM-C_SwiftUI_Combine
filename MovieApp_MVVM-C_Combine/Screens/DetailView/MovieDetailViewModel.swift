@@ -9,7 +9,7 @@ import Foundation
 import Combine
 
 final class MovieDetailViewModel: ObservableObject {
-    @Published var viewState: ViewState<MovieDetail> = .idle
+    @Published var state: ViewState<MovieDetail> = .idle
     private var cancellables = Set<AnyCancellable>()
     private let apiClient: ApiClient
     private let movieID: Int
@@ -21,7 +21,7 @@ final class MovieDetailViewModel: ObservableObject {
     }
     
     func fetchMovieDetail() {
-        self.viewState = .loading(nil)
+        self.state = .loading(MovieDetailViewModel.loadingItem)
         self.apiClient.request(MovieEndPoints.movieDetails(self.movieID))
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { completion in
@@ -29,11 +29,26 @@ final class MovieDetailViewModel: ObservableObject {
                 case .finished:
                     print("Successfully received movie's detail")
                 case let .failure(error):
-                    self.viewState = .error(error)
+                    self.state = .error(error)
                 }
-            }, receiveValue: { (movieDetail: MovieDetail) in
-                self.viewState = .loaded(movieDetail)
+            }, receiveValue: { [weak self] (movieDetail: MovieDetail) in
+                guard let self else { return }
+                self.state = .loaded(movieDetail)
             })
             .store(in: &self.cancellables)
+    }
+}
+
+extension MovieDetailViewModel {
+    static var loadingItem: MovieDetail {
+        return MovieDetail(id: 1,
+                           title: UUID().uuidString,
+                           overview: UUID().uuidString,
+                           poster_path: UUID().uuidString,
+                           vote_average: 50.0,
+                           genres: [],
+                           release_date: UUID().uuidString,
+                           runtime: 1,
+                           spoken_languages: [])
     }
 }
