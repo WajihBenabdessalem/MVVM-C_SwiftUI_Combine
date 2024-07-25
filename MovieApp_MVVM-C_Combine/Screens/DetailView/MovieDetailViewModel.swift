@@ -21,7 +21,7 @@ final class MovieDetailViewModel: ObservableObject {
     }
     
     func fetchMovieDetail() {
-        self.viewState = .loading
+        self.viewState = .loading(nil)
         self.apiClient.request(MovieEndPoints.movieDetails(self.movieID))
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { completion in

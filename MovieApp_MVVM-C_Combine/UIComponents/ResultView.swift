@@ -9,7 +9,7 @@ import SwiftUI
 
 enum ViewState<T> {
     case idle
-    case loading
+    case loading(T?)
     case loaded(T)
     case error(ApiError)
 }
@@ -32,8 +32,12 @@ struct ResultView<T, Content: View>: View {
             switch state {
             case .idle:
                 Color.clear
-            case .loading:
-                ProgressView { Text("Loading...") }
+            case let .loading(data):
+                if let loadingData = data {
+                    content(loadingData).redacted(reason: .placeholder)
+                } else {
+                    ProgressView { Text("Loading...") }
+                }
             case let .loaded(data):
                 content(data)
             case let .error(error):

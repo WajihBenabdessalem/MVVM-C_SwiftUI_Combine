@@ -9,7 +9,7 @@ import Foundation
 import Combine
 
 final class MoviesViewModel: ObservableObject {
-    @Published var state: ViewState<[Movie]> = .idle
+    @Published private(set) var state: ViewState<[Movie]> = .idle
     @Published private(set) var movies: [Movie] = []
     @Published var searchQuery: String = ""
     @Published var isNoSearchResult: Bool = false
@@ -18,6 +18,7 @@ final class MoviesViewModel: ObservableObject {
             fetchMovies(selectedCategory)
         }
     }
+    /// A store for subscriptions
     private var cancellables = Set<AnyCancellable>()
     private let apiClient: ApiClient
     
@@ -27,7 +28,7 @@ final class MoviesViewModel: ObservableObject {
     }
     
     func fetchMovies(_ type: MovieType) {
-        state = .loading
+        state = .loading(Self.loadingItems)
         self.apiClient.request(MovieEndPoints.movies(type))
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { [weak self] completion in
@@ -38,7 +39,7 @@ final class MoviesViewModel: ObservableObject {
                     self?.state = .error(error)
                 }
             }, receiveValue: { [weak self] (response: MoviesResponse) in
-                guard let self = self else { return }
+                guard let self else { return }
                 self.state = .loaded(response.results)
                 self.movies = response.results
             })
@@ -53,13 +54,30 @@ private extension MoviesViewModel {
             .removeDuplicates()
             .combineLatest($state)
             .map { [weak self] (query, state) -> ViewState in
-                guard let self = self, case .loaded(_) = state else { return .idle }
+                guard let self, case .loaded(_) = state else { return .idle }
                 let searchResult = self.movies.filter { $0.title.lowercased().contains(query.lowercased()) }
                 self.isNoSearchResult = searchResult.isEmpty && !query.isEmpty
                 return query.isEmpty ? .loaded(self.movies) : .loaded(searchResult)
             }
             .receive(on: DispatchQueue.main)
-            .assign(to: \.state, on: self)
+            .weakAssign(to: \.state, on: self)
             .store(in: &cancellables)
+    }
+}
+
+extension MoviesViewModel {
+    static var loadingItems: [Movie] {
+        var uniqueID = 0
+        return (0..<20).map { _ in
+            defer { uniqueID += 1 }
+            return .init(id: uniqueID,
+                         title: UUID().uuidString,
+                         poster_path: UUID().uuidString,
+                         overview: UUID().uuidString,
+                         release_date: UUID().uuidString,
+                         popularity: 50.5,
+                         vote_average: 50.5,
+                         vote_count: 20)
+        }
     }
 }

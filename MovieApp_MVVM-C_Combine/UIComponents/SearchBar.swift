@@ -9,7 +9,6 @@ import SwiftUI
 
 struct SearchBar: View {
     @Binding var text: String
-    @FocusState var isSearching: Bool
     
     var body: some View {
         HStack {
@@ -18,7 +17,6 @@ struct SearchBar: View {
                     .foregroundColor(Color(.systemGray2))
                 TextField("Search for movie...", text: $text)
                     .tint(.white)
-                    .focused($isSearching)
                     .submitLabel(.search)
                 Button {
                     text = ""

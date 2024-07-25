@@ -14,8 +14,7 @@ struct MovieApp_MVVM_C_CombineApp: App {
     
     var body: some Scene {
         WindowGroup {
-            //CoordinatorView()
-            MoviesView()
+            CoordinatorView()
                 .environmentObject(coordinator)
                 .environmentObject(networkMonitor)
         }

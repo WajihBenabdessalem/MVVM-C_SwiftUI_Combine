@@ -18,10 +18,10 @@ struct MoviesView: View {
                 SearchBar(text: $viewModel.searchQuery)
                 PickerView(selected: $viewModel.selectedCategory)
                 ResultView(state: viewModel.state, request: {
-                  viewModel.fetchMovies(viewModel.selectedCategory)
-                }) { movies in
+                    viewModel.fetchMovies(viewModel.selectedCategory)
+                }, content: { movies in
                     movieListView(movies)
-                }
+                })
                 .overlay { noSearchResultView() }
             }
             .navigationTitle(viewModel.selectedCategory.title)
