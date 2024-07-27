@@ -20,7 +20,7 @@ struct ApiClient: ApiService {
     /// Default implementation for the request method within the ApiService protocol.
     func request<T: Decodable>(_ endPoint: EndPoint) -> AnyPublisher<T, ApiError> {
         #if DEBUG
-        print("Making request 📡 ...\nURLRequest info:  \(endPoint.urlRequest.url?.absoluteString ?? "N/A")\n###################\n")
+        print("Sending request 📡 ...\nURLRequest info:  \(endPoint.urlRequest.url?.absoluteString ?? "N/A")\n###################\n")
         #endif
         return URLSession.shared.dataTaskPublisher(for: endPoint.urlRequest)
             .subscribe(on: DispatchQueue.global(qos: .background))

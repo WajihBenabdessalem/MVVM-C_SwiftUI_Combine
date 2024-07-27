@@ -28,7 +28,7 @@ final class MoviesViewModel: ObservableObject {
     }
     
     func fetchMovies(_ type: MovieType) {
-        state = .loading(Self.loadingItems)
+        state = .loading(MoviesViewModel.loadingItems)
         self.apiClient.request(MovieEndPoints.movies(type))
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { [weak self] completion in
@@ -36,12 +36,12 @@ final class MoviesViewModel: ObservableObject {
                 case .finished:
                     print("Successfully received movies")
                 case let .failure(error):
-                    self?.state = .error(error)
+                    self?.state = .failed(error)
                 }
             }, receiveValue: { [weak self] (response: MoviesResponse) in
                 guard let self else { return }
-                self.state = .loaded(response.results)
                 self.movies = response.results
+                self.state = .loaded(response.results)
             })
             .store(in: &self.cancellables)
     }
@@ -65,7 +65,7 @@ private extension MoviesViewModel {
     }
 }
 
-extension MoviesViewModel {
+private extension MoviesViewModel {
     static var loadingItems: [Movie] {
         var uniqueID = 0
         return (0..<20).map { _ in

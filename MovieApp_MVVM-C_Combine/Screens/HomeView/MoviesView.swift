@@ -11,7 +11,7 @@ struct MoviesView: View {
     @StateObject private var viewModel = MoviesViewModel()
     @EnvironmentObject private var coordinator: Coordinator
     @Environment(\.imageCache) private var cache: ImageCache
-
+    
     var body: some View {
         NavigationStack(path: $coordinator.path) {
             VStack {
@@ -19,16 +19,12 @@ struct MoviesView: View {
                 PickerView(selected: $viewModel.selectedCategory)
                 ResultView(state: viewModel.state, request: {
                     viewModel.fetchMovies(viewModel.selectedCategory)
-                }, content: { movies in 
+                }, content: { movies in
                     movieListView(movies)
                 })
-                .overlay { noSearchResultView() }
             }
-            .navigationBarTitleDisplayMode(.large)
             .navigationTitle(viewModel.selectedCategory.title)
-            .navigationDestination(for: Page.self) { page in
-                coordinator.build(page:page)
-            }
+            .navigationBarTitleDisplayMode(.large)
         }
         .preferredColorScheme(.dark)
     }
@@ -49,6 +45,10 @@ extension MoviesView {
             }
             .padding(.horizontal)
         }
+        .navigationDestination(for: Page.self) { page in
+            coordinator.build(page:page)
+        }
+        .overlay { noSearchResultView() }
     }
     
     @ViewBuilder
@@ -86,7 +86,7 @@ extension MoviesView {
         }
         .frame(height: 151)
     }
-
+    
     @ViewBuilder
     func noSearchResultView() -> some View {
         if viewModel.isNoSearchResult {

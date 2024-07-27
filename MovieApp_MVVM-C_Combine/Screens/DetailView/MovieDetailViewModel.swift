@@ -29,7 +29,7 @@ final class MovieDetailViewModel: ObservableObject {
                 case .finished:
                     print("Successfully received movie's detail")
                 case let .failure(error):
-                    self.state = .error(error)
+                    self.state = .failed(error)
                 }
             }, receiveValue: { [weak self] (movieDetail: MovieDetail) in
                 guard let self else { return }

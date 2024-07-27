@@ -11,7 +11,7 @@ enum ViewState<T> {
     case idle
     case loading(T?)
     case loaded(T)
-    case error(ApiError)
+    case failed(ApiError)
 }
 
 struct ResultView<T, Content: View>: View {
@@ -40,7 +40,7 @@ struct ResultView<T, Content: View>: View {
                 }
             case let .loaded(data):
                 content(data)
-            case let .error(error):
+            case let .failed(error):
                 ContentUnavailable(error, retry: request)
             }
         }

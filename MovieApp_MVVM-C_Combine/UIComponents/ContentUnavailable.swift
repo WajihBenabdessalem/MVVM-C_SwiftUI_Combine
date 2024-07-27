@@ -8,17 +8,18 @@
 import SwiftUI
 
 struct ContentUnavailable: View {
+    @State private var errorDescription: String = ""
     let error: ApiError?
     let retry: (() -> Void)?
     
     init(_ error: ApiError?, retry: (() -> Void)?) {
         self.error = error
         self.retry = retry
+        _errorDescription = State(initialValue: error?.errorDescription ?? "")
     }
     
     var body: some View {
-        let errorDescription = error?.errorDescription ?? ""
-        return ContentUnavailableView {
+        ContentUnavailableView {
             Label("Oops!", systemImage: "exclamationmark.triangle")
                 .tint(.white)
         } description: {

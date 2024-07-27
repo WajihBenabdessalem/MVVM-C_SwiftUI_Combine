@@ -46,7 +46,8 @@ extension MovieDetailView {
             url: poster,
             cache: cache,
             placeholder: {
-                Spinner(isAnimating: true, style: .medium)
+                RoundedRectangle(cornerRadius: 25)
+                    .fill(Color.gray.opacity(0.5))
             },image: {
                 Image(uiImage: $0)
                     .resizable()
