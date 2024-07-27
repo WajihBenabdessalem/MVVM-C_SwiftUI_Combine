@@ -22,9 +22,12 @@ struct MoviesView: View {
                 }, content: { movies in
                     movieListView(movies)
                 })
+                .navigationTitle(viewModel.selectedCategory.title)
+                .navigationBarTitleDisplayMode(.large)
+                .navigationDestination(for: Page.self) { page in
+                    coordinator.build(page:page)
+                }
             }
-            .navigationTitle(viewModel.selectedCategory.title)
-            .navigationBarTitleDisplayMode(.large)
         }
         .preferredColorScheme(.dark)
     }
@@ -44,9 +47,6 @@ extension MoviesView {
                 }
             }
             .padding(.horizontal)
-        }
-        .navigationDestination(for: Page.self) { page in
-            coordinator.build(page:page)
         }
         .overlay { noSearchResultView() }
     }

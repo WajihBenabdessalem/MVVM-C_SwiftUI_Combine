@@ -44,11 +44,11 @@ struct ResultView<T, Content: View>: View {
                 ContentUnavailable(error, retry: request)
             }
         }
-        .onAppear { if let request = request { request() } }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .popover(isPresented: $showNetworkAlert) { NoInternetView() }
         .onChange(of: networkMonitor.isConnected) { old, new in
             showNetworkAlert = new == false
         }
-        .popover(isPresented: $showNetworkAlert) { NoInternetView() }
+        .onAppear { if let request = request { request() } }
     }
 }
