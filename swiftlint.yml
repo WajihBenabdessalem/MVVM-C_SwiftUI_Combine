@@ -1,0 +1,71 @@
+# SwiftLint Configuration File
+
+# Define custom rules or disable certain rules globally
+disabled_rules:
+  - line_length       # Disables the line length rule
+  - identifier_name   # Disables the identifier name rule
+  - force_cast        # Disables the force cast rule
+
+# Opt-in rules (disabled by default, but can be enabled)
+opt_in_rules:
+  - empty_count       # Checks for use of `.isEmpty` over `.count == 0`
+  - first_where       # Prefer `.first(where:)` over `.filter { }.first`
+
+# Configure specific rules
+line_length:
+  warning: 120       # Lines with more than 120 characters will trigger a warning
+  error: 150         # Lines with more than 150 characters will trigger an error
+  ignores_comments: true
+  ignores_urls: true
+
+type_name:
+  min_length: 3      # Type names should have at least 3 characters
+  max_length: 40     # Type names should have at most 40 characters
+
+identifier_name:
+  min_length: 3      # Variable names should have at least 3 characters
+  max_length: 40     # Variable names should have at most 40 characters
+  excluded:          # Exclude certain identifiers from the rule
+    - id
+    - URL
+
+# Include only specific directories for linting
+included:
+  - Source
+  - Tests
+
+# Exclude certain files and directories from linting
+excluded:
+  - Carthage
+  - Pods
+  - fastlane
+  - Source/Generated
+
+# Custom severity levels for specific rules
+severity:
+  cyclomatic_complexity: warning
+  function_body_length:
+    - warning: 40
+    - error: 80
+
+# Define custom rules
+custom_rules:
+  no_forced_unwrapping:
+    included: ".*\\.swift"
+    name: "No Forced Unwrapping"
+    regex: "\\s*![^=]"
+    message: "Avoid using forced unwrapping (`!`)."
+    severity: error
+
+  no_print_statements:
+    included: ".*\\.swift"
+    name: "No Print Statements"
+    regex: "print\\(.*\\)"
+    message: "Avoid using print statements in production code."
+    severity: warning
+
+# Configure which files to lint
+only_rules:
+  - force_unwrapping   # Enforce avoiding force unwrapping
+  - force_try          # Enforce avoiding force try
+  - force_cast         # Enforce avoiding force cast
