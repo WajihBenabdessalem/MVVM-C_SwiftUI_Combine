@@ -33,22 +33,53 @@ struct ResultView<T, Content: View>: View {
             case .idle:
                 Color.clear
             case let .loading(data):
+                LoadingView(data: data, content: content)
+            case let .loaded(data):
+                ResultContentView(data: data, content: content)
+            case let .failed(error):
+                ErrorView(error: error, retry: request)
+            }
+        }
+        .onChange(of: networkMonitor.isConnected) { _, new in
+            showNetworkAlert = !new
+        }
+        .onAppear { if let request = request { request() } }
+        .popover(isPresented: $showNetworkAlert) { NoInternetView() }
+    }
+}
+
+extension ResultView {
+    /// Loading View
+    struct LoadingView: View {
+        let data: T?
+        let content: (T) -> Content
+        //
+        var body: some View {
+            Group {
                 if let loadingData = data {
                     content(loadingData).redacted(reason: .placeholder)
                 } else {
                     ProgressView { Text("Loading...") }
                 }
-            case let .loaded(data):
-                content(data)
-            case let .failed(error):
-                ContentUnavailable(error, retry: request)
             }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .popover(isPresented: $showNetworkAlert) { NoInternetView() }
-        .onChange(of: networkMonitor.isConnected) { _, new in
-            showNetworkAlert = !new
+    }
+    /// Result Content View
+    struct ResultContentView: View {
+        let data: T
+        let content: (T) -> Content
+        //
+        var body: some View {
+            content(data)
         }
-        .onAppear { if let request = request { request() } }
+    }
+    /// Error View
+    struct ErrorView: View {
+        let error: ApiError
+        let retry: (() -> Void)?
+        //
+        var body: some View {
+            ContentUnavailable(error: error, retry: retry)
+        }
     }
 }

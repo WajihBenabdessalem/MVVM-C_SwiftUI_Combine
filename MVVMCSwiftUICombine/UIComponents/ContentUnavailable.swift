@@ -8,14 +8,14 @@
 import SwiftUI
 
 struct ContentUnavailable: View {
-    @State private var errorDescription: String = ""
     let error: ApiError?
     let retry: (() -> Void)?
+    var errorDescription: String = ""
     //
-    init(_ error: ApiError?, retry: (() -> Void)?) {
+    init(error: ApiError?, retry: (() -> Void)?) {
         self.error = error
         self.retry = retry
-        _errorDescription = State(initialValue: error?.errorDescription ?? "")
+        errorDescription = error?.errorDescription ?? ""
     }
     //
     var body: some View {

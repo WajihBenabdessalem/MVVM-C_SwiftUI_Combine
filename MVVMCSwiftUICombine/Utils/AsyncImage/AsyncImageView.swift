@@ -26,7 +26,6 @@ struct AsyncImageView<Placeholder: View>: View {
     var body: some View {
         content
             .onAppear(perform: loader.load)
-            .onDisappear(perform: loader.cancel)
     }
     //
     private var content: some View {

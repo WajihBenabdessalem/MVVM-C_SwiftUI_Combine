@@ -21,7 +21,9 @@ struct MoviesView: View {
             }, content: { movies in
                 movieListView(movies)
             })
-            .overlay { noSearchResultView() }
+            .overlay {
+                noSearchResultView()
+            }
         }
         .navigationTitle(viewModel.selectedCategory.title)
         .navigationBarTitleDisplayMode(.large)

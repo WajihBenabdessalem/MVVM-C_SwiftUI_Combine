@@ -38,7 +38,8 @@ final class ImageLoader: ObservableObject {
         }
         throttleWorkItem?.cancel()
         let workItem = DispatchWorkItem { [weak self] in
-            self?.startLoad()
+            guard let self = self else { return }
+            self.startLoad()
         }
         throttleWorkItem = workItem
         DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + throttleInterval, execute: workItem)
@@ -47,14 +48,14 @@ final class ImageLoader: ObservableObject {
     func startLoad() {
         cancellable = URLSession.shared.dataTaskPublisher(for: url)
             .subscribe(on: Self.imageProcessingQueue)
-            .map { UIImage(data: $0.data) }
             .receive(on: DispatchQueue.main)
+            .map { UIImage(data: $0.data) }
             .replaceError(with: nil)
             .handleEvents(receiveSubscription: { [weak self] _ in self?.onStart() },
                           receiveOutput: { [weak self] in self?.cache($0) },
                           receiveCompletion: { [weak self] _ in self?.onFinish() },
                           receiveCancel: { [weak self] in self?.onFinish() })
-            .assign(to: \.image, on: self)
+            .weakAssign(to: \.image, on: self)
     }
     //
     func cancel() {

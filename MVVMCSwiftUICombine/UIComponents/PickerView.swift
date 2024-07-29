@@ -15,7 +15,6 @@ struct PickerView: View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 3) { tabListView() }
             .background(backgroundView(), alignment: .leading)
-            .animation(.linear(duration: 0.15), value: selected)
             .padding(7)
             .scrollTargetLayout()
         }
@@ -36,7 +35,7 @@ extension PickerView {
                 .fontWeight(.bold)
                 .padding(.horizontal, 11)
                 .padding(.vertical, 7)
-                .onTapGesture { withAnimation { selected = tab } }
+                .onTapGesture { withAnimation(.linear(duration: 0.15)) { selected = tab } }
             .background(
                 GeometryReader { geo in
                     Color.clear.onAppear {

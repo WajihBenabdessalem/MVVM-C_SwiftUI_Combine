@@ -36,7 +36,10 @@ extension EndPoint {
     }
     //
     var baseURL: URL {
-        return URL(string: environment.baseURL)!
+        guard let url = URL(string: environment.baseURL) else {
+            fatalError("Invalid base URL")
+        }
+        return url
     }
     //
     var headers: [String: String] {
@@ -50,7 +53,10 @@ extension EndPoint {
     var urlRequest: URLRequest {
         var components = URLComponents(url: baseURL.appendingPathComponent(path), resolvingAgainstBaseURL: true)!
         components.queryItems = queryItems
-        var request = URLRequest(url: components.url!)
+        guard let url = components.url else {
+            fatalError("Invalid URL components")
+        }
+        var request = URLRequest(url: url)
         request.httpMethod = method.rawValue
         request.allHTTPHeaderFields = headers
         return request
