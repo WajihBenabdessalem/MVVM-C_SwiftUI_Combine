@@ -1,6 +1,6 @@
 //
 //  MoviesViewModel.swift
-//  MovieApp_VIP
+//  MVVMCSwiftUICombine
 //
 //  Created by Wajih Benabdessalem on 6/2/24.
 //
@@ -30,7 +30,6 @@ final class MoviesViewModel: ObservableObject {
     func fetchMovies(_ type: MovieType) {
         state = .loading(MoviesViewModel.loadingItems)
         self.apiClient.request(MovieEndPoints.movies(type))
-            .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { [weak self] completion in
                 switch completion {
                 case .finished:

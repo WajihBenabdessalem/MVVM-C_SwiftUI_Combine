@@ -1,6 +1,6 @@
 //
 //  MovieDetailView.swift
-//  MovieApp_VIP
+//  MVVMCSwiftUICombine
 //
 //  Created by Wajih Benabdessalem on 6/7/24.
 //
@@ -14,9 +14,7 @@ struct MovieDetailView: View {
     //
     var body: some View {
         GeometryReader { proxy in
-            ResultView(state: viewModel.state, request: {
-                viewModel.fetchMovieDetail()
-            }, content: { movieDetail in
+            ResultView(state: viewModel.state, content: { movieDetail in
                 VStack(alignment: .leading, spacing: 0) {
                     posterView(poster: movieDetail.poster!,
                                proxy: proxy, cache: cache)
@@ -24,6 +22,7 @@ struct MovieDetailView: View {
                 }
             })
         }
+        .ignoresSafeArea(edges: .all)
         .navigationBarBackButtonHidden(true)
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
@@ -38,8 +37,6 @@ struct MovieDetailView: View {
                 }
             }
         }
-        .ignoresSafeArea(edges: .all)
-        .preferredColorScheme(.dark)
     }
 }
 

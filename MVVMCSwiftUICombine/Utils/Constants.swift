@@ -1,6 +1,6 @@
 //
 //  Constants.swift
-//  MovieApp_VIP
+//  MVVMCSwiftUICombine
 //
 //  Created by Wajih Benabdessalem on 6/3/24.
 //

@@ -1,6 +1,6 @@
 //
 //  MoviesView.swift
-//  MovieApp_VIP
+//  MVVMCSwiftUICombine
 //
 //  Created by Wajih Benabdessalem on 6/2/24.
 //
@@ -13,7 +13,7 @@ struct MoviesView: View {
     @Environment(\.imageCache) private var cache: ImageCache
     //
     var body: some View {
-        NavigationStack(path: $coordinator.path) {
+        VStack {
             SearchBar(text: $viewModel.searchQuery)
             PickerView(selected: $viewModel.selectedCategory)
             ResultView(state: viewModel.state, request: {
@@ -22,17 +22,13 @@ struct MoviesView: View {
                 movieListView(movies)
             })
             .overlay { noSearchResultView() }
-            .navigationTitle(viewModel.selectedCategory.title)
-            .navigationBarTitleDisplayMode(.large)
-            .navigationDestination(for: Page.self) { page in
-                coordinator.build(page: page)
-            }
         }
-        .preferredColorScheme(.dark)
+        .navigationTitle(viewModel.selectedCategory.title)
+        .navigationBarTitleDisplayMode(.large)
     }
 }
 
-extension MoviesView {
+private extension MoviesView {
     @ViewBuilder
     func movieListView(_ movies: [Movie]) -> some View {
         ScrollView(showsIndicators: false) {

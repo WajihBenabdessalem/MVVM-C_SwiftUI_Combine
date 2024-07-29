@@ -1,6 +1,6 @@
 //
 //  SearchBar.swift
-//  MovieApp_VIP
+//  MVVMCSwiftUICombine
 //
 //  Created by Wajih Benabdessalem on 6/4/24.
 //

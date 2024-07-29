@@ -38,11 +38,14 @@ class Coordinator: ObservableObject {
     /// Build the view according to the enum `Page`
     @ViewBuilder
     func build(page: Page) -> some View {
-        switch page {
-        case .home:
-            MoviesView()
-        case let .detail(id):
-            MovieDetailView(viewModel: MovieDetailViewModel(movieID: id))
+        Group {
+            switch page {
+            case .home:
+                MoviesView()
+            case let .detail(id):
+                MovieDetailView(viewModel: MovieDetailViewModel(movieID: id))
+            }
         }
+        .preferredColorScheme(.dark)
     }
 }

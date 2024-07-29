@@ -1,6 +1,6 @@
 //
 //  PopularityBadge.swift
-//  MovieApp_VIP
+//  MVVMCSwiftUICombine
 //
 //  Created by Wajih Benabdessalem on 6/5/24.
 //

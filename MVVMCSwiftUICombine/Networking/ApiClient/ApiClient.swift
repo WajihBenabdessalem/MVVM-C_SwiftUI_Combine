@@ -46,6 +46,7 @@ struct ApiClient: ApiService {
                     return ApiError.invalidResponse
                 }
             }
+            .receive(on: DispatchQueue.main)
             .eraseToAnyPublisher()
     }
 }

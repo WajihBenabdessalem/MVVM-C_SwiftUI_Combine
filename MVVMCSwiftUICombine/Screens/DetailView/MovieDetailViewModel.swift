@@ -1,6 +1,6 @@
 //
 //  MovieDetailViewModel.swift
-//  MovieApp_VIP
+//  MVVMCSwiftUICombine
 //
 //  Created by Wajih Benabdessalem on 6/8/24.
 //
@@ -18,6 +18,7 @@ final class MovieDetailViewModel: ObservableObject {
          movieID: Int) {
         self.apiClient = apiClient
         self.movieID = movieID
+        self.fetchMovieDetail()
     }
     //
     func fetchMovieDetail() {

@@ -10,20 +10,19 @@ import Network
 
 class NetworkMonitor: ObservableObject {
     private let networkMonitor = NWPathMonitor()
-    private let workerQueue = DispatchQueue(label: "Monitor", qos: .background)
-    //
     @Published var isConnected = false
 
     init() {
         networkMonitor.pathUpdateHandler = { [weak self] path in
             guard let self = self else { return }
-            self.workerQueue.async {
-                let status = path.status == .satisfied
-                DispatchQueue.main.async {
-                    self.isConnected = status
-                }
+            DispatchQueue.main.async {
+                self.isConnected = (path.status == .satisfied)
             }
         }
-        networkMonitor.start(queue: workerQueue)
+        let monitorQueue = DispatchQueue(label: "NetworkMonitorQueue", qos: .background)
+        networkMonitor.start(queue: monitorQueue)
+    }
+    deinit {
+        networkMonitor.cancel()
     }
 }

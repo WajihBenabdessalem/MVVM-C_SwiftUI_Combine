@@ -8,14 +8,18 @@
 import SwiftUI
 
 struct CoordinatorView: View {
-
     @StateObject private var coordinator = Coordinator()
     @StateObject var networkMonitor = NetworkMonitor()
-
+    //
     var body: some View {
-        coordinator.build(page: .home)
-            .environmentObject(coordinator)
-            .environmentObject(networkMonitor)
+        NavigationStack(path: $coordinator.path) {
+            coordinator.build(page: .home)
+                .navigationDestination(for: Page.self) { page in
+                    coordinator.build(page: page)
+                }
+        }
+        .environmentObject(coordinator)
+        .environmentObject(networkMonitor)
     }
 }
 
