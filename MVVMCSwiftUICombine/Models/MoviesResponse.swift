@@ -10,14 +10,14 @@ import Foundation
 // MARK: - MoviesResponse
 
 // swiftlint:disable identifier_name
-struct MoviesResponse<T: Codable>: Codable {
+struct MoviesResponse<T: Codable & Equatable>: Codable, Equatable {
     let page: Int?
     let total_results: Int?
     let total_pages: Int?
     let results: [T]
 }
 
-struct Movie: Codable, Identifiable, Hashable {
+struct Movie: Codable, Identifiable, Equatable {
     let id: Int
     let title: String
     let poster_path: String?

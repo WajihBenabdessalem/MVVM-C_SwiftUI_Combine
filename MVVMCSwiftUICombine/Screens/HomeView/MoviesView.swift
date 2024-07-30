@@ -13,7 +13,7 @@ struct MoviesView: View {
     @Environment(\.imageCache) private var cache: ImageCache
     //
     var body: some View {
-        VStack {
+        VStack(spacing: 20) {
             SearchBar(text: $viewModel.searchQuery)
             PickerView(selected: $viewModel.selectedCategory)
             ResultView(state: viewModel.state, request: {
@@ -21,10 +21,9 @@ struct MoviesView: View {
             }, content: { movies in
                 movieListView(movies)
             })
-            .overlay {
-                noSearchResultView()
-            }
+            .overlay { noSearchResultView() }
         }
+        .padding(.horizontal, 10)
         .navigationTitle(viewModel.selectedCategory.title)
         .navigationBarTitleDisplayMode(.large)
     }
@@ -43,7 +42,8 @@ private extension MoviesView {
                         }
                 }
             }
-            .padding(.horizontal)
+        }.refreshable {
+            viewModel.fetchMovies(viewModel.selectedCategory)
         }
     }
     //
@@ -92,5 +92,11 @@ private extension MoviesView {
 }
 
 #Preview {
-    Coordinator().build(page: .home)
+    @Previewable @State var coordinator: Coordinator = Coordinator()
+    @Previewable @State var networkMonitor: NetworkMonitor = NetworkMonitor()
+    NavigationStack {
+        Coordinator().build(page: .home)
+            .environmentObject(coordinator)
+            .environmentObject(networkMonitor)
+    }
 }

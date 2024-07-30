@@ -15,14 +15,14 @@ struct PickerView: View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 3) { tabListView() }
             .background(backgroundView(), alignment: .leading)
-            .padding(7)
+            .padding(.vertical, 7)
             .scrollTargetLayout()
         }
         .background(
-            Capsule().foregroundStyle(.gray.opacity(0.3))
+            Capsule().foregroundStyle(.clear.opacity(0.3))
         )
         .scrollPosition(id: .constant(selected), anchor: .center)
-        .padding(.horizontal, 10)
+        .frame(height: 50)
     }
 }
 
@@ -64,4 +64,9 @@ extension PickerView {
     func indexOf(tab: MovieType) -> Int {
         return MovieType.allCases.firstIndex(of: tab)!
     }
+}
+
+#Preview {
+    @Previewable @State var type: MovieType = .popular
+    PickerView(selected: $type)
 }

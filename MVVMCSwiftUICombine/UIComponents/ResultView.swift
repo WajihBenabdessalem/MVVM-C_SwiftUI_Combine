@@ -43,7 +43,6 @@ struct ResultView<T, Content: View>: View {
         .onChange(of: networkMonitor.isConnected) { _, new in
             showNetworkAlert = !new
         }
-        .onAppear { if let request = request { request() } }
         .popover(isPresented: $showNetworkAlert) { NoInternetView() }
     }
 }

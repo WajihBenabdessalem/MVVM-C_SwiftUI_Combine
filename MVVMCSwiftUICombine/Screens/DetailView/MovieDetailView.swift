@@ -22,7 +22,6 @@ struct MovieDetailView: View {
                 }
             })
         }
-        .ignoresSafeArea(edges: .all)
         .navigationBarBackButtonHidden(true)
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
@@ -37,6 +36,7 @@ struct MovieDetailView: View {
                 }
             }
         }
+        .ignoresSafeArea(edges: .all)
     }
 }
 
@@ -87,5 +87,9 @@ extension MovieDetailView {
 }
 
 #Preview {
+    @Previewable @State var coordinator: Coordinator = Coordinator()
+    @Previewable @State var networkMonitor: NetworkMonitor = NetworkMonitor()
     Coordinator().build(page: .detail(MockData.movie.id))
+        .environmentObject(coordinator)
+        .environmentObject(networkMonitor)
 }

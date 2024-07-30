@@ -17,7 +17,12 @@ struct SearchBar: View {
                     .foregroundColor(Color(.systemGray2))
                 TextField("Search for movie...", text: $text)
                     .tint(.white)
-                    .submitLabel(.search)
+                    .submitLabel(.done)
+                    .textInputAutocapitalization(.never)
+                    .textContentType(.username)
+                    .disableAutocorrection(true)
+                    .keyboardType(.default)
+                    .frame(maxHeight: .infinity)
                 Button {
                     text = ""
                 } label: {
@@ -26,7 +31,7 @@ struct SearchBar: View {
                         .padding(.trailing, 0)
                 }
             }
-            .padding(10)
+            .padding(.horizontal, 10)
             .background(
                 Capsule()
                 .strokeBorder(.gray.opacity(0.41), lineWidth: 2)
@@ -39,6 +44,12 @@ struct SearchBar: View {
                     Text("Cancel").bold().tint(.gray)
                 }
             }
-        }.padding(10)
+        }
+        .frame(height: 50)
     }
+}
+
+#Preview {
+    @Previewable @State var text = ""
+    SearchBar(text: $text)
 }

@@ -1,13 +1,13 @@
 //
-//  MovieAppMVVMCombineUITestsLaunchTests.swift
-//  MovieAppMVVMCombineUITests
+//  MVVMCSwiftUICombineUITestsLaunchTests.swift
+//  MVVMCSwiftUICombineUITests
 //
 //  Created by Wajih Benabdessalem on 6/24/24.
 //
 
 import XCTest
 
-final class MovieAppMVVMCombineUITestsLaunchTests: XCTestCase {
+final class MVVMCSwiftUICombineUITestsLaunchTests: XCTestCase {
 
     override static var runsForEachTargetApplicationUIConfiguration: Bool {
         true

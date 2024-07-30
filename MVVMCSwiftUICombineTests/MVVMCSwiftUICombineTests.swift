@@ -1,14 +1,14 @@
 //
-//  MovieAppMVVMCombineTests.swift
-//  MovieAppMVVMCombineTests
+//  MVVMCSwiftUICombineTests.swift
+//  MVVMCSwiftUICombineTests
 //
 //  Created by Wajih Benabdessalem on 6/24/24.
 //
 
 import XCTest
-@testable import MovieApp_MVVM_C_Combine
+@testable import MVVMCSwiftUICombine
 
-final class MovieAppMVVMCombineTests: XCTestCase {
+final class MVVMCSwiftUICombineTests: XCTestCase {
 
     override func setUpWithError() throws {
         // Put setup code here. This method is called before the invocation of each test method in the class.

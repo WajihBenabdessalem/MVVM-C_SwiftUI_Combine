@@ -61,7 +61,5 @@ struct PopularityBadge: View {
 }
 
 #Preview {
-    VStack {
-        PopularityBadge(score: 80)
-    }
+    PopularityBadge(score: 80)
 }

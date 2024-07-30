@@ -13,11 +13,7 @@ final class MoviesViewModel: ObservableObject {
     @Published private(set) var movies: [Movie] = []
     @Published var searchQuery: String = ""
     @Published var isNoSearchResult: Bool = false
-    @Published var selectedCategory: MovieType = .popular {
-        didSet {
-            fetchMovies(selectedCategory)
-        }
-    }
+    @Published var selectedCategory: MovieType = .popular
     /// A store for subscriptions
     private var cancellables = Set<AnyCancellable>()
     private let apiClient: ApiClient
@@ -25,22 +21,26 @@ final class MoviesViewModel: ObservableObject {
     init(apiClient: ApiClient = .shared) {
         self.apiClient = apiClient
         initSubscribers()
+        fetchMovies(.popular)
     }
     //
     func fetchMovies(_ type: MovieType) {
         state = .loading(MoviesViewModel.loadingItems)
         self.apiClient.request(MovieEndPoints.movies(type))
             .sink(receiveCompletion: { [weak self] completion in
+                guard let self else { return }
                 switch completion {
                 case .finished:
                     print("Successfully received movies")
                 case let .failure(error):
-                    self?.state = .failed(error)
+                    self.state = .failed(error)
                 }
             }, receiveValue: { [weak self] (response: MoviesResponse) in
                 guard let self else { return }
-                self.movies = response.results
-                self.state = .loaded(response.results)
+                let sortedMovies = response.results.sorted { (firstMovie: Movie, secondMovie: Movie) -> Bool in
+                    firstMovie.title < secondMovie.title }
+                self.movies = sortedMovies
+                self.state = .loaded(sortedMovies)
             })
             .store(in: &self.cancellables)
     }
@@ -48,6 +48,7 @@ final class MoviesViewModel: ObservableObject {
 
 private extension MoviesViewModel {
     func initSubscribers() {
+        //
         $searchQuery
             .dropFirst()
             .removeDuplicates()
@@ -60,6 +61,15 @@ private extension MoviesViewModel {
             }
             .receive(on: DispatchQueue.main)
             .weakAssign(to: \.state, on: self)
+            .store(in: &cancellables)
+        //
+        $selectedCategory
+            .dropFirst()
+            .removeDuplicates()
+            .sink { [weak self] newValue in
+                guard let self else { return }
+                self.fetchMovies(newValue)
+            }
             .store(in: &cancellables)
     }
 }
