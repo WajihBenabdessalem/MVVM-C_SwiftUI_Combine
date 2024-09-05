@@ -6,27 +6,26 @@
 //
 
 import Foundation
+import SwiftUI
 import Combine
 
-final class MoviesViewModel: ObservableObject {
-    @Published private(set) var state: ViewState<[Movie]> = .idle
-    @Published private(set) var movies: [Movie] = []
-    @Published var searchQuery: String = ""
-    @Published var isNoSearchResult: Bool = false
-    @Published var selectedCategory: MovieType = .popular
-    /// A store for subscriptions
+@Observable final class MoviesViewModel {
+    private(set) var state: ViewState<[Movie]> = .idle
+    private(set) var movies: [Movie] = []
     private var cancellables = Set<AnyCancellable>()
+    var isNoSearchResult: Bool = false
+    var searchQuery: String = "" { didSet { handleSearchQueryChange() } }
+    var selectedCategory: MovieType = .popular { didSet { fetchMovies(selectedCategory) } }
     private let apiClient: ApiClient
     //
     init(apiClient: ApiClient = .shared) {
         self.apiClient = apiClient
-        initSubscribers()
         fetchMovies(.popular)
     }
     //
     func fetchMovies(_ type: MovieType) {
-        state = .loading(MoviesViewModel.loadingItems)
-        self.apiClient.request(MovieEndPoints.movies(type))
+        state = .loading(LoadingItems.movies)
+        apiClient.request(MovieEndPoints.movies(type))
             .sink(receiveCompletion: { [weak self] completion in
                 guard let self else { return }
                 switch completion {
@@ -38,55 +37,23 @@ final class MoviesViewModel: ObservableObject {
             }, receiveValue: { [weak self] (response: MoviesResponse) in
                 guard let self else { return }
                 let sortedMovies = response.results.sorted { (firstMovie: Movie, secondMovie: Movie) -> Bool in
-                    firstMovie.title < secondMovie.title }
+                    firstMovie.title < secondMovie.title
+                }
                 self.movies = sortedMovies
                 self.state = .loaded(sortedMovies)
-            })
-            .store(in: &self.cancellables)
+            }).store(in: &cancellables)
     }
 }
 
 private extension MoviesViewModel {
-    func initSubscribers() {
-        //
-        $searchQuery
-            .dropFirst()
-            .removeDuplicates()
-            .combineLatest($state)
-            .map { [weak self] (query, state) -> ViewState in
-                guard let self, case .loaded = state else { return .idle }
-                let searchResult = self.movies.filter { $0.title.lowercased().contains(query.lowercased()) }
-                self.isNoSearchResult = searchResult.isEmpty && !query.isEmpty
-                return query.isEmpty ? .loaded(self.movies) : .loaded(searchResult)
-            }
-            .receive(on: DispatchQueue.main)
-            .weakAssign(to: \.state, on: self)
-            .store(in: &cancellables)
-        //
-        $selectedCategory
-            .dropFirst()
-            .removeDuplicates()
-            .sink { [weak self] newValue in
-                guard let self else { return }
-                self.fetchMovies(newValue)
-            }
-            .store(in: &cancellables)
-    }
-}
-
-private extension MoviesViewModel {
-    static var loadingItems: [Movie] {
-        var uniqueID = 0
-        return (0..<20).map { _ in
-            defer { uniqueID += 1 }
-            return .init(id: uniqueID,
-                         title: UUID().uuidString,
-                         poster_path: UUID().uuidString,
-                         overview: UUID().uuidString,
-                         release_date: UUID().uuidString,
-                         popularity: 50.5,
-                         vote_average: 0,
-                         vote_count: 20)
+    func handleSearchQueryChange() {
+        guard !searchQuery.isEmpty else {
+            state = .loaded(movies)
+            isNoSearchResult = false
+            return
         }
+        let searchResult = movies.filter { $0.title.lowercased().contains(searchQuery.lowercased()) }
+        isNoSearchResult = searchResult.isEmpty
+        state = .loaded(searchResult)
     }
 }

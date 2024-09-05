@@ -50,6 +50,5 @@ struct SearchBar: View {
 }
 
 #Preview {
-    @Previewable @State var text = ""
-    SearchBar(text: $text)
+    SearchBar(text: .constant(""))
 }

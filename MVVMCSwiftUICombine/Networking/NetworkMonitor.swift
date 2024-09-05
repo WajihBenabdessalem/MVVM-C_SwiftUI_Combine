@@ -8,9 +8,10 @@
 import SwiftUI
 import Network
 
-class NetworkMonitor: ObservableObject {
+@Observable
+final class NetworkMonitor {
     private let networkMonitor = NWPathMonitor()
-    @Published var isConnected = false
+    var isConnected = false
 
     init() {
         networkMonitor.pathUpdateHandler = { [weak self] path in
@@ -22,6 +23,7 @@ class NetworkMonitor: ObservableObject {
         let monitorQueue = DispatchQueue(label: "NetworkMonitorQueue", qos: .background)
         networkMonitor.start(queue: monitorQueue)
     }
+    //
     deinit {
         networkMonitor.cancel()
     }

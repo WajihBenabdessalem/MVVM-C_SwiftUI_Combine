@@ -14,9 +14,9 @@ struct PickerView: View {
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 3) { tabListView() }
-            .background(backgroundView(), alignment: .leading)
-            .padding(.vertical, 7)
-            .scrollTargetLayout()
+                .background(backgroundView(), alignment: .leading)
+                .padding(.vertical, 7)
+                .scrollTargetLayout()
         }
         .background(
             Capsule().foregroundStyle(.clear.opacity(0.3))
@@ -35,15 +35,21 @@ extension PickerView {
                 .fontWeight(.bold)
                 .padding(.horizontal, 11)
                 .padding(.vertical, 7)
-                .onTapGesture { withAnimation(.linear(duration: 0.15)) { selected = tab } }
-            .background(
-                GeometryReader { geo in
-                    Color.clear.onAppear {
-                        self.setFrame(index: indexOf(tab: tab),
-                                      frame: geo.frame(in: .global))
+                .onTapGesture {
+                    withAnimation(.linear(duration: 0.15)) {
+                        selected = tab
                     }
                 }
-            )
+                .background(
+                    GeometryReader { geo in
+                        Color.clear.onAppear {
+                            self.setFrame(
+                                index: indexOf(tab: tab),
+                                frame: geo.frame(in: .global)
+                            )
+                        }
+                    }
+                )
         }
     }
     //
@@ -51,9 +57,11 @@ extension PickerView {
     func backgroundView() -> some View {
         Capsule()
             .fill(Color.titleTintColor)
-            .frame(width: self.frames[indexOf(tab: selected)].width,
-                   height: self.frames[indexOf(tab: selected)].height,
-                   alignment: .topLeading)
+            .frame(
+                width: self.frames[indexOf(tab: selected)].width,
+                height: self.frames[indexOf(tab: selected)].height,
+                alignment: .topLeading
+            )
             .offset(x: self.frames[indexOf(tab: selected)].minX - self.frames[0].minX)
     }
     //
@@ -67,6 +75,5 @@ extension PickerView {
 }
 
 #Preview {
-    @Previewable @State var type: MovieType = .popular
-    PickerView(selected: $type)
+    PickerView(selected: .constant(.popular))
 }

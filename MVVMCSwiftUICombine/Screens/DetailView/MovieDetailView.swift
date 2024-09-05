@@ -8,9 +8,9 @@
 import SwiftUI
 
 struct MovieDetailView: View {
-    @ObservedObject var viewModel: MovieDetailViewModel
-    @EnvironmentObject private var coordinator: Coordinator
+    @Environment(Coordinator.self) private var coordinator
     @Environment(\.imageCache) private var cache: ImageCache
+    var viewModel: MovieDetailViewModel
     //
     var body: some View {
         GeometryReader { proxy in
@@ -87,9 +87,7 @@ extension MovieDetailView {
 }
 
 #Preview {
-    @Previewable @State var coordinator: Coordinator = Coordinator()
-    @Previewable @State var networkMonitor: NetworkMonitor = NetworkMonitor()
     Coordinator().build(page: .detail(MockData.movie.id))
-        .environmentObject(coordinator)
-        .environmentObject(networkMonitor)
+        .environment(Coordinator())
+        .environment(NetworkMonitor())
 }

@@ -15,12 +15,10 @@ enum Page: Hashable {
 }
 
 // MARK: - Coordinator.
-
-class Coordinator: ObservableObject {
-
+@Observable class Coordinator {
     ///  Pullished variable property wrapper.
-    @Published var path = NavigationPath()
-    @Published var currentPage: Page = .home
+    var path = NavigationPath()
+    var currentPage: Page = .home
     ///  Method to push the view to the child view.
     func push(_ page: Page) {
         path.append(page)

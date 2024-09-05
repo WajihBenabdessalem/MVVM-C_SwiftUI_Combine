@@ -15,7 +15,7 @@ enum ViewState<T> {
 }
 
 struct ResultView<T, Content: View>: View {
-    @EnvironmentObject private var networkMonitor: NetworkMonitor
+    @Environment(NetworkMonitor.self) private var networkMonitor
     @State private var showNetworkAlert = false
     let state: ViewState<T>
     let request: (() -> Void)?

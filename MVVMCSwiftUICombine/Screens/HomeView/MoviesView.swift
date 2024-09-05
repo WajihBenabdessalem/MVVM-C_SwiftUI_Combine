@@ -8,24 +8,24 @@
 import SwiftUI
 
 struct MoviesView: View {
-    @StateObject private var viewModel = MoviesViewModel()
-    @EnvironmentObject private var coordinator: Coordinator
+    @State private var viewModel = MoviesViewModel()
+    @Environment(Coordinator.self) private var coordinator
     @Environment(\.imageCache) private var cache: ImageCache
     //
     var body: some View {
-        VStack(spacing: 20) {
-            SearchBar(text: $viewModel.searchQuery)
-            PickerView(selected: $viewModel.selectedCategory)
-            ResultView(state: viewModel.state, request: {
-                viewModel.fetchMovies(viewModel.selectedCategory)
-            }, content: { movies in
-                movieListView(movies)
-            })
-            .overlay { noSearchResultView() }
+        NavBarView(title: viewModel.selectedCategory.title) {
+            VStack(spacing: 20) {
+                SearchBar(text: $viewModel.searchQuery)
+                PickerView(selected: $viewModel.selectedCategory)
+                ResultView(state: viewModel.state, request: {
+                    viewModel.fetchMovies(viewModel.selectedCategory)
+                }, content: { movies in
+                    movieListView(movies)
+                }).overlay { noSearchResultView() }
+            }
+            .padding(.horizontal, 10)
         }
-        .padding(.horizontal, 10)
-        .navigationTitle(viewModel.selectedCategory.title)
-        .navigationBarTitleDisplayMode(.large)
+        .toolbar(.hidden)
     }
 }
 
@@ -92,11 +92,9 @@ private extension MoviesView {
 }
 
 #Preview {
-    @Previewable @State var coordinator: Coordinator = Coordinator()
-    @Previewable @State var networkMonitor: NetworkMonitor = NetworkMonitor()
     NavigationStack {
         Coordinator().build(page: .home)
-            .environmentObject(coordinator)
-            .environmentObject(networkMonitor)
+            .environment(Coordinator())
+            .environment(NetworkMonitor())
     }
 }

@@ -8,8 +8,8 @@
 import SwiftUI
 
 struct CoordinatorView: View {
-    @StateObject private var coordinator = Coordinator()
-    @StateObject var networkMonitor = NetworkMonitor()
+    @State private var coordinator = Coordinator()
+    @State private var networkMonitor = NetworkMonitor()
     //
     var body: some View {
         NavigationStack(path: $coordinator.path) {
@@ -18,8 +18,8 @@ struct CoordinatorView: View {
                     coordinator.build(page: page)
                 }
         }
-        .environmentObject(coordinator)
-        .environmentObject(networkMonitor)
+        .environment(coordinator)
+        .environment(networkMonitor)
     }
 }
 

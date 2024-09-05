@@ -5,14 +5,15 @@
 //  Created by Wajih Benabdessalem on 6/8/24.
 //
 
-import Foundation
+import SwiftUI
 import Combine
 
-final class MovieDetailViewModel: ObservableObject {
-    @Published var state: ViewState<MovieDetail> = .idle
+@Observable
+final class MovieDetailViewModel {
+    var state: ViewState<MovieDetail> = .idle
     private var cancellables = Set<AnyCancellable>()
     private let apiClient: ApiClient
-    private let movieID: Int
+    var movieID: Int = -1
     //
     init(apiClient: ApiClient = .shared,
          movieID: Int) {
